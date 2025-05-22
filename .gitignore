@@ -1,0 +1,6 @@
+.venv
+.idea
+__pycahs__/
+*.mp3
+*.json
+.env
