@@ -33,8 +33,8 @@ class PreProcessor:
         audio = AudioSegment.from_file(audio_path)
         original_sample_rate = audio.frame_rate
         if original_sample_rate != sample_rate:
-            audio = audio.set_frame_rate(sample_rate)
-            audio.export(output_path, format="mp3")
+            audio = audio.set_frame_rate(sample_rate).set_channels(1)
+            audio.export(output_path, format="mp3", bitrate="128k")
             logger.info(f"Access resampling audio -{output_path}")
             return output_path
         else:
