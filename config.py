@@ -1,9 +1,11 @@
 import os
 import dotenv
 import torch
+import warnings
 
 from loguru import logger
 
+warnings.filterwarnings("ignore", category=UserWarning)
 logger.add("app.log", format="{time} {level} {message}", level="INFO", rotation="10 MB", compression="zip")
 dotenv.load_dotenv()
 

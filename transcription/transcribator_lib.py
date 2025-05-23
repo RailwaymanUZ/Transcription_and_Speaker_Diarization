@@ -78,8 +78,8 @@ class TranscriberLib(AbstractTranscriber):
             {
                 "start": float(element['start']),
                 "end": float(element['end']),
-                "text": element['word']
+                "text": element['text']
             }
-            for element in sum((segment['words'] for segment in result_transcription['segments']), [])
+            for element in result_transcription['segments']
         ]
         return words

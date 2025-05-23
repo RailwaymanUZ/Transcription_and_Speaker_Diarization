@@ -7,7 +7,7 @@ The final output is saved in JSON format.
 
 - Python 3.8 or later
 - `pip` package manager
-- GPU with CUDA support
+- GPU with CUDA support and min 12 gb VRAM
 - ffmpeg (for audio conversion, if required)
 - A Hugging Face API token (set as the environment variable `HF_TOKEN`) or create .env file with this variable.
 - Take access to model Speaker Diarization https://huggingface.co/pyannote/speaker-diarization 

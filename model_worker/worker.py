@@ -6,6 +6,7 @@ import config
 from transcription import Transcriber
 from speaker_diarization import SDModel
 from pre_processor import PreProcessor
+from post_processor import PostProcessor
 
 class Worker:
     def __init__(self):
@@ -14,44 +15,20 @@ class Worker:
         self.__MIN_SEGMENT_DURATION = config.MIN_SEGMENT_DURATION
         self.__DELTA_DIARIZATION_BUTCH_SIZE = config.DELTA_DIARIZATION_BUTCH_SIZE
 
-    def filter_diarization_data(self, result_diarization: list) -> list:
+
+    @classmethod
+    def _postprocessing(cls, transcription_data: list, sd_data: list) -> list:
         """
-        Method return filtered segments after diarization
-        :param result_diarization: result
-        :return: list() with dict()
+        Method to postprocessing result models and merge.
+        :param transcription_data: list() with dict() result transcription.
+        :param sd_data: list() with dict() result Speaker Digitization.
+        :return: list() postprocessing result
         """
-        filtered_result = [
-            seg for seg in result_diarization
-            if seg['end'] - seg['start'] > self.__MIN_SEGMENT_DURATION
-        ]
-        return filtered_result
+        sd_data = PostProcessor.separate_overlap(sd_data)
+        merge = PostProcessor.merged_result(sd_data=sd_data, tr_data=transcription_data)
+        merge = PostProcessor.group_by_speaker(merge)
+        return merge
 
-
-    def merge_diarization_with_transcription(self, diarization: list, transcription: list) -> list:
-        """
-        Method to make 1 data list merged diarization data and transcription data.
-        :param: diarization list() diarization data
-        :param: transcription list() transcription data
-        :param: delta time to -start time and + end time.
-        :return: list() with merged data
-        """
-        merged = []
-        for seg in diarization:
-            seg_start = seg['start'] - self.__DELTA_DIARIZATION_BUTCH_SIZE
-            seg_end   = seg['end']   + self.__DELTA_DIARIZATION_BUTCH_SIZE
-
-            words = [
-                    w['text']
-                    for w in transcription
-                    if w.get('start') is not None
-                       and w.get('end') is not None
-                       and not (w['start'] < seg_start or w['end'] > seg_end)
-                ]
-
-            text = ' '.join(words).strip()
-
-            merged.append({**seg, 'text': text})
-        return merged
 
     def work_models(self, path_to_file: str) -> list:
         """
@@ -71,9 +48,9 @@ class Worker:
 
         diarization_data = self.__sd_model.work(path_to_file)
         transcription_data = self.__transcriber.work(path_to_file)
-        diarization_data = self.filter_diarization_data(diarization_data)
-        result = self.merge_diarization_with_transcription(diarization_data, transcription_data)
+        result = self._postprocessing(transcription_data=transcription_data, sd_data=diarization_data)
         return result
+
 
     def result(self, path_to_file: str, output_dir: str = "src/") -> None:
         """
@@ -87,6 +64,10 @@ class Worker:
             raise FileNotFoundError(f"File not found: {path_to_file}")
 
         result_work = self.work_models(path_to_file)
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
         file_name = f"{output_dir}result.json"
         with open(file_name, "w", encoding="utf-8") as f:
             json.dump(result_work, f, ensure_ascii=False, indent=4)
