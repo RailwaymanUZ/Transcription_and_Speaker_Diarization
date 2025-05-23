@@ -2,7 +2,6 @@ import os
 import json
 from loguru import logger
 
-import config
 from transcription import Transcriber
 from speaker_diarization import SDModel
 from pre_processor import PreProcessor
@@ -12,8 +11,6 @@ class Worker:
     def __init__(self):
         self.__transcriber = Transcriber()
         self.__sd_model = SDModel()
-        self.__MIN_SEGMENT_DURATION = config.MIN_SEGMENT_DURATION
-        self.__DELTA_DIARIZATION_BUTCH_SIZE = config.DELTA_DIARIZATION_BUTCH_SIZE
 
 
     @classmethod

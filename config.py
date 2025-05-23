@@ -16,5 +16,3 @@ MODEL_TRANSCRIPTION = "openai/whisper-large-v3" # https://huggingface.co/openai/
 HF_TOKEN = os.getenv("HF_TOKEN")
 MODEL_SPEAKER_DIARIZATION = "pyannote/speaker-diarization@2.1" # https://huggingface.co/pyannote/speaker-diarization
 NUM_SPEAKERS = 2
-MIN_SEGMENT_DURATION = 0.1
-DELTA_DIARIZATION_BUTCH_SIZE = 0.3
